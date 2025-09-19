@@ -1,0 +1,72 @@
+{
+  "cluster_name": "network-fault-detection-cluster",
+  "spark_version": "14.3.x-scala2.12",
+  "node_type_id": "i3.xlarge",
+  "driver_node_type_id": "i3.xlarge",
+  "num_workers": 2,
+  "autoscale": {
+    "min_workers": 1,
+    "max_workers": 8
+  },
+  "auto_termination_minutes": 60,
+  "spark_conf": {
+    "spark.databricks.delta.preview.enabled": "true",
+    "spark.databricks.delta.autoCompact.enabled": "true",
+    "spark.databricks.delta.optimizeWrite.enabled": "true",
+    "spark.databricks.adaptive.enabled": "true",
+    "spark.databricks.adaptive.coalescePartitions.enabled": "true",
+    "spark.sql.adaptive.coalescePartitions.enabled": "true",
+    "spark.sql.adaptive.advisoryPartitionSizeInBytes": "128MB",
+    "spark.databricks.io.cache.enabled": "true"
+  },
+  "aws_attributes": {
+    "zone_id": "us-west-2a",
+    "instance_profile_arn": "arn:aws:iam::ACCOUNT_ID:instance-profile/databricks-instance-profile",
+    "first_on_demand": 1,
+    "availability": "SPOT_WITH_FALLBACK"
+  },
+  "libraries": [
+    {
+      "pypi": {
+        "package": "databricks-sdk==0.18.0"
+      }
+    },
+    {
+      "pypi": {
+        "package": "requests>=2.28.0"
+      }
+    },
+    {
+      "pypi": {
+        "package": "python-dotenv>=1.0.0"
+      }
+    }
+  ],
+  "init_scripts": [
+    {
+      "workspace": {
+        "destination": "/workspace/init-scripts/setup-network-monitoring.sh"
+      }
+    }
+  ],
+  "custom_tags": {
+    "Project": "NetworkFaultDetection",
+    "Environment": "Production",
+    "Team": "NetworkOps",
+    "Purpose": "AI-Agent-RCA-System"
+  },
+  "enable_elastic_disk": true,
+  "disk_spec": {
+    "disk_type": {
+      "ebs_volume_type": "GENERAL_PURPOSE_SSD"
+    },
+    "disk_size": 100,
+    "disk_count": 1
+  },
+  "cluster_log_conf": {
+    "dbfs": {
+      "destination": "dbfs:/cluster-logs/network-fault-detection"
+    }
+  },
+  "policy_id": "policy-for-network-monitoring"
+}

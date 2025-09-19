@@ -1,0 +1,144 @@
+{
+  "name": "Network Fault Detection Pipeline",
+  "description": "Automated pipeline for network log ingestion, incident detection, and RCA generation using Databricks AI agents",
+  "tags": {
+    "project": "network-fault-detection",
+    "environment": "production",
+    "team": "network-ops"
+  },
+  "tasks": [
+    {
+      "task_key": "data_ingestion",
+      "description": "Ingest network logs into Unity Catalog Delta tables",
+      "notebook_task": {
+        "notebook_path": "/workspace/notebooks/01-data-ingestion",
+        "source": "WORKSPACE"
+      },
+      "existing_cluster_id": "CLUSTER_ID_FROM_CLUSTER_CONFIG",
+      "timeout_seconds": 3600,
+      "max_retries": 2,
+      "min_retry_interval_millis": 10000
+    },
+    {
+      "task_key": "streaming_pipeline",
+      "description": "Process logs for incident detection",
+      "depends_on": [
+        {
+          "task_key": "data_ingestion"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "/workspace/notebooks/02-streaming-pipeline",
+        "source": "WORKSPACE",
+        "base_parameters": {
+          "enable_incident_stream": "true",
+          "enable_agent_triggers": "true",
+          "processing_interval": "30"
+        }
+      },
+      "existing_cluster_id": "CLUSTER_ID_FROM_CLUSTER_CONFIG",
+      "timeout_seconds": 7200,
+      "max_retries": 1,
+      "min_retry_interval_millis": 30000
+    },
+    {
+      "task_key": "agent_orchestration",
+      "description": "Process incidents with AI agents for RCA generation",
+      "depends_on": [
+        {
+          "task_key": "streaming_pipeline"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "/workspace/notebooks/03-agent-orchestration",
+        "source": "WORKSPACE",
+        "base_parameters": {
+          "process_all_pending": "true"
+        }
+      },
+      "existing_cluster_id": "CLUSTER_ID_FROM_CLUSTER_CONFIG",
+      "timeout_seconds": 3600,
+      "max_retries": 2,
+      "min_retry_interval_millis": 20000
+    }
+  ],
+  "schedule": {
+    "quartz_cron_expression": "0 */15 * * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "UNPAUSED"
+  },
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 14400,
+  "email_notifications": {
+    "on_start": ["network-ops@company.com"],
+    "on_success": ["network-ops@company.com"],
+    "on_failure": ["network-ops@company.com", "platform-team@company.com"],
+    "no_alert_for_skipped_runs": false
+  },
+  "webhook_notifications": {
+    "on_start": [
+      {
+        "id": "slack-webhook-start"
+      }
+    ],
+    "on_success": [
+      {
+        "id": "slack-webhook-success"
+      }
+    ],
+    "on_failure": [
+      {
+        "id": "slack-webhook-failure"
+      }
+    ]
+  },
+  "notification_settings": {
+    "no_alert_for_skipped_runs": false,
+    "no_alert_for_canceled_runs": false
+  },
+  "run_as": {
+    "service_principal_name": "network-fault-detection-sp"
+  },
+  "job_clusters": [
+    {
+      "job_cluster_key": "auto-scaling-cluster",
+      "new_cluster": {
+        "cluster_name": "",
+        "spark_version": "14.3.x-scala2.12",
+        "node_type_id": "i3.xlarge",
+        "driver_node_type_id": "i3.xlarge",
+        "autoscale": {
+          "min_workers": 2,
+          "max_workers": 10
+        },
+        "auto_termination_minutes": 0,
+        "spark_conf": {
+          "spark.databricks.delta.preview.enabled": "true",
+          "spark.databricks.delta.autoCompact.enabled": "true",
+          "spark.databricks.adaptive.enabled": "true"
+        },
+        "libraries": [
+          {
+            "pypi": {
+              "package": "databricks-sdk==0.18.0"
+            }
+          },
+          {
+            "pypi": {
+              "package": "requests>=2.28.0"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "git_source": {
+    "git_provider": "gitHub",
+    "git_url": "https://github.com/your-org/network-fault-detection",
+    "git_branch": "main",
+    "git_commit": ""
+  },
+  "continuous": {
+    "pause_status": "UNPAUSED"
+  }
+}

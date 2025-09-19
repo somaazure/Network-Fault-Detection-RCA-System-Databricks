@@ -1,0 +1,179 @@
+{
+  "name": "Network_Fault_Detection_Production_Pipeline",
+  "description": "Continuous multi-agent network fault detection and RCA generation for production simulation",
+  "job_clusters": [
+    {
+      "job_cluster_key": "multi_agent_cluster",
+      "new_cluster": {
+        "spark_version": "13.3.x-cpu-ml-scala2.12",
+        "node_type_id": "m5.large",
+        "driver_node_type_id": "m5.large",
+        "num_workers": 2,
+        "aws_attributes": {
+          "ebs_volume_type": "GENERAL_PURPOSE_SSD",
+          "ebs_volume_count": 1,
+          "ebs_volume_size": 32,
+          "zone_id": "auto"
+        },
+        "spark_conf": {
+          "spark.databricks.delta.preview.enabled": "true"
+        },
+        "custom_tags": {
+          "project": "network-fault-detection",
+          "environment": "production-simulation"
+        }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "log_generator",
+      "description": "Generate continuous network logs for simulation",
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/00_Continuous_Log_Generator_Production",
+        "base_parameters": {
+          "duration_hours": "1",
+          "test_mode": "false"
+        }
+      },
+      "timeout_seconds": 3600,
+      "max_retries": 2,
+      "retry_on_timeout": true
+    },
+    {
+      "task_key": "severity_classification",
+      "description": "Agent 01: Severity Classification with Auto Loader",
+      "depends_on": [
+        {
+          "task_key": "log_generator"
+        }
+      ],
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/01_Severity_Classification_Agent_TRUE_AI_HYBRID_FIXED",
+        "base_parameters": {
+          "monitoring_duration": "120",
+          "enable_ai": "false"
+        }
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 3,
+      "retry_on_timeout": true
+    },
+    {
+      "task_key": "incident_manager",
+      "description": "Agent 02: Incident Manager Processing",
+      "depends_on": [
+        {
+          "task_key": "severity_classification"
+        }
+      ],
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/02_Incident_Manager_AgentBricks_TRUE_AI_HYBRID_FIXED",
+        "base_parameters": {
+          "monitoring_duration": "120",
+          "enable_ai": "false"
+        }
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 3,
+      "retry_on_timeout": true
+    },
+    {
+      "task_key": "network_operations",
+      "description": "Agent 03: Network Operations Processing",
+      "depends_on": [
+        {
+          "task_key": "incident_manager"
+        }
+      ],
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/03_Network_Ops_Agent_AgentBricks_TRUE_AI_HYBRID_FIXED",
+        "base_parameters": {
+          "monitoring_duration": "120",
+          "enable_ai": "false"
+        }
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 3,
+      "retry_on_timeout": true
+    },
+    {
+      "task_key": "rca_analysis",
+      "description": "Agent 04: Root Cause Analysis - PRIMARY RAG DATA SOURCE",
+      "depends_on": [
+        {
+          "task_key": "network_operations"
+        }
+      ],
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/04_RCA_Agent_AgentBricks_TRUE_AI_HYBRID_FIXED",
+        "base_parameters": {
+          "monitoring_duration": "120",
+          "enable_ai": "false"
+        }
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 3,
+      "retry_on_timeout": true
+    },
+    {
+      "task_key": "multi_agent_orchestrator",
+      "description": "Agent 05: Multi-Agent Workflow Orchestration",
+      "depends_on": [
+        {
+          "task_key": "rca_analysis"
+        }
+      ],
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/05_Multi_Agent_Orchestrator_AgentBricks_TRUE_AI_HYBRID_FIXED",
+        "base_parameters": {
+          "monitoring_duration": "120",
+          "enable_ai": "false"
+        }
+      },
+      "timeout_seconds": 1800,
+      "max_retries": 3,
+      "retry_on_timeout": true
+    },
+    {
+      "task_key": "data_quality_check",
+      "description": "Validate pipeline results and data quality",
+      "depends_on": [
+        {
+          "task_key": "multi_agent_orchestrator"
+        }
+      ],
+      "job_cluster_key": "multi_agent_cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/Pipeline_Data_Quality_Check",
+        "base_parameters": {}
+      },
+      "timeout_seconds": 600,
+      "max_retries": 2,
+      "retry_on_timeout": true
+    }
+  ],
+  "schedule": {
+    "quartz_cron_expression": "0 0 */6 * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "UNPAUSED"
+  },
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 14400,
+  "notification_settings": {
+    "no_alert_for_skipped_runs": false,
+    "no_alert_for_canceled_runs": false
+  },
+  "tags": {
+    "project": "network-fault-detection",
+    "environment": "production-simulation",
+    "version": "v2.0",
+    "owner": "data-platform-team"
+  }
+}

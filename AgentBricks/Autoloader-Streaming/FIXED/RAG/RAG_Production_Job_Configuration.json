@@ -1,0 +1,188 @@
+{
+  "name": "RAG_Production_Pipeline",
+  "description": "Complete RAG system deployment for Network Fault Detection with 2,493 RCA records",
+  "job_clusters": [
+    {
+      "job_cluster_key": "rag-production-cluster",
+      "new_cluster": {
+        "spark_version": "13.3.x-cpu-ml-scala2.12",
+        "node_type_id": "i3.xlarge",
+        "driver_node_type_id": "i3.xlarge",
+        "num_workers": 2,
+        "autoscale": {
+          "min_workers": 2,
+          "max_workers": 4
+        },
+        "cluster_log_conf": {
+          "dbfs": {
+            "destination": "dbfs:/cluster-logs/rag-production"
+          }
+        },
+        "init_scripts": [],
+        "spark_conf": {
+          "spark.databricks.delta.preview.enabled": "true",
+          "spark.sql.adaptive.enabled": "true",
+          "spark.sql.adaptive.coalescePartitions.enabled": "true"
+        },
+        "enable_elastic_disk": true
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "01_vector_search_setup",
+      "description": "Create vector search endpoint and index with 2,493 RCA records",
+      "job_cluster_key": "rag-production-cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_01_Vector_Search_Setup",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 3600,
+      "retry_on_timeout": false,
+      "max_retries": 2,
+      "min_retry_interval_millis": 60000
+    },
+    {
+      "task_key": "02_embeddings_pipeline",
+      "description": "Enhanced embeddings processing for optimal search quality",
+      "depends_on": [
+        {
+          "task_key": "01_vector_search_setup"
+        }
+      ],
+      "job_cluster_key": "rag-production-cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_02_Embeddings_Pipeline",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 2400,
+      "retry_on_timeout": false,
+      "max_retries": 1,
+      "min_retry_interval_millis": 30000
+    },
+    {
+      "task_key": "03_intelligent_search_interface",
+      "description": "Deploy intelligent search interface with AI response generation",
+      "depends_on": [
+        {
+          "task_key": "02_embeddings_pipeline"
+        }
+      ],
+      "job_cluster_key": "rag-production-cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_03_Intelligent_Search_Interface",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1800,
+      "retry_on_timeout": false,
+      "max_retries": 1,
+      "min_retry_interval_millis": 30000
+    },
+    {
+      "task_key": "04_end_to_end_testing",
+      "description": "Comprehensive system validation and performance testing",
+      "depends_on": [
+        {
+          "task_key": "03_intelligent_search_interface"
+        }
+      ],
+      "job_cluster_key": "rag-production-cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_04_End_to_End_Testing",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 1200,
+      "retry_on_timeout": false,
+      "max_retries": 1,
+      "min_retry_interval_millis": 30000
+    },
+    {
+      "task_key": "05_production_interface_validation",
+      "description": "Validate production RAG interface with real queries",
+      "depends_on": [
+        {
+          "task_key": "04_end_to_end_testing"
+        }
+      ],
+      "job_cluster_key": "rag-production-cluster",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/somaazure@gmail.com/AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_Working_Interface_FIXED",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 900,
+      "retry_on_timeout": false,
+      "max_retries": 1,
+      "min_retry_interval_millis": 30000
+    }
+  ],
+  "schedule": {
+    "quartz_cron_expression": "0 0 2 * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "PAUSED"
+  },
+  "email_notifications": {
+    "on_start": [],
+    "on_success": [],
+    "on_failure": [],
+    "no_alert_for_skipped_runs": false
+  },
+  "webhook_notifications": {},
+  "notification_settings": {
+    "no_alert_for_skipped_runs": false,
+    "no_alert_for_canceled_runs": false
+  },
+  "timeout_seconds": 7200,
+  "max_concurrent_runs": 1,
+  "tags": {
+    "environment": "production",
+    "project": "network-fault-detection",
+    "component": "rag-system",
+    "owner": "network-operations-team",
+    "cost-center": "infrastructure",
+    "criticality": "high"
+  },
+  "health": {
+    "rules": [
+      {
+        "metric": "RUN_DURATION_SECONDS",
+        "op": "GREATER_THAN",
+        "value": 7200
+      }
+    ]
+  },
+  "run_as": {
+    "user_name": "somaazure@gmail.com"
+  },
+  "access_control_list": [
+    {
+      "user_name": "somaazure@gmail.com",
+      "permission_level": "IS_OWNER"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "environment",
+      "default": "production"
+    },
+    {
+      "name": "vector_index_name",
+      "default": "rca_reports_vector_index"
+    },
+    {
+      "name": "endpoint_name",
+      "default": "network_fault_detection_vs_endpoint"
+    },
+    {
+      "name": "foundation_model",
+      "default": "databricks-meta-llama-3-1-8b-instruct"
+    },
+    {
+      "name": "embedding_model",
+      "default": "databricks-bge-large-en"
+    },
+    {
+      "name": "test_queries",
+      "default": "[\"Router interface down causing connectivity issues\", \"High CPU utilization troubleshooting\", \"BGP neighbor down routing problems\"]"
+    }
+  ]
+}

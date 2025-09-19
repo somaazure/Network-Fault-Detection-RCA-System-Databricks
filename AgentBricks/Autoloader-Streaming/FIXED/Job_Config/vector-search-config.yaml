@@ -1,0 +1,189 @@
+name: network-rca-vector-search
+description: Vector Search configuration for Network RCA semantic search (replaces Pinecone)
+
+# Vector Search Endpoint Configuration
+endpoint:
+  name: network-rca-endpoint
+  endpoint_type: STANDARD
+  
+# Vector Search Index Configuration  
+indexes:
+  - name: rca_vector_index
+    endpoint_name: network-rca-endpoint
+    primary_key: rca_id
+    
+    # Source table configuration
+    source_table:
+      catalog: network_fault_detection
+      schema: processed_data
+      table: rca_reports
+    
+    # Embedding configuration
+    embedding_config:
+      embedding_model_endpoint_name: databricks-bge-large-en
+      # Alternative: text-embedding-3-small for OpenAI compatibility
+      
+      # Text columns to embed
+      embedding_source_columns:
+        - full_report
+        - root_cause  
+        - impact_analysis
+        - incident_summary
+      
+      # Embedding dimensions (1536 for text-embedding-3-small, 1024 for bge-large-en)
+      embedding_dimension: 1024
+    
+    # Sync configuration
+    sync_config:
+      sync_mode: TRIGGERED  # Options: TRIGGERED, CONTINUOUS
+      
+    # Pipeline configuration for data processing
+    pipeline_type: TRIGGERED
+    
+    # Index settings
+    index_spec:
+      index_type: DELTA_SYNC
+      
+# Search Configuration Templates
+search_templates:
+  
+  # Semantic search for similar RCA reports
+  - name: similar_rca_search
+    query_type: similarity_search
+    parameters:
+      num_results: 10
+      similarity_threshold: 0.7
+      
+  # Hybrid search combining semantic and keyword
+  - name: hybrid_rca_search  
+    query_type: hybrid_search
+    parameters:
+      num_results: 15
+      keyword_weight: 0.3
+      semantic_weight: 0.7
+      
+  # Filtered search by severity
+  - name: severity_filtered_search
+    query_type: filtered_search
+    filters:
+      severity_classification: 
+        - "SEVERITY_CLASSIFIER > P1"
+        - "SEVERITY_CLASSIFIER > P2"
+    parameters:
+      num_results: 20
+
+# Access Control
+access_control:
+  # Unity Catalog permissions
+  read_permissions:
+    - "account users"
+    - "network-ops-team"
+    - "incident-response-team"
+    
+  write_permissions:
+    - "network-ops-admin"
+    - "platform-team"
+
+# Monitoring and Logging
+monitoring:
+  enable_query_logging: true
+  enable_performance_metrics: true
+  
+  # Alerts for index health
+  alerts:
+    - name: index_freshness
+      condition: "index_lag > 30 minutes"
+      recipients:
+        - "platform-team@company.com"
+        
+    - name: query_performance
+      condition: "avg_query_latency > 2000ms" 
+      recipients:
+        - "platform-team@company.com"
+
+# Performance Tuning
+performance:
+  # Compute resources for index building
+  index_compute:
+    node_type_id: "i3.2xlarge"
+    min_workers: 2
+    max_workers: 8
+    
+  # Query serving
+  serving:
+    enable_query_cache: true
+    cache_ttl_minutes: 60
+    
+  # Optimization settings
+  optimization:
+    auto_refresh_interval: "1 hour"
+    compaction_enabled: true
+
+# Integration Settings
+integrations:
+  
+  # Slack notifications for index updates
+  slack:
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    notify_on:
+      - index_refresh_complete
+      - index_build_failure
+      
+  # Databricks SQL integration
+  sql_integration:
+    enable_sql_functions: true
+    function_prefix: "rca_search"
+    
+# Example Usage Queries
+example_queries:
+  
+  # Find similar incidents
+  - description: "Find RCA reports similar to network congestion issues"
+    query_text: "network congestion causing service degradation"
+    expected_results: "RCA reports about congestion-related incidents"
+    
+  # Severity-specific search  
+  - description: "Find all P1 incident root causes"
+    query_text: "critical outage fiber cut hardware failure"
+    filters:
+      severity_classification: "SEVERITY_CLASSIFIER > P1"
+    expected_results: "High-severity incident RCA reports"
+    
+  # Time-based search
+  - description: "Recent performance-related incidents"
+    query_text: "latency performance degradation timeout"
+    filters:
+      created_at: "last 7 days"
+    expected_results: "Recent performance issue RCAs"
+
+# Deployment Configuration
+deployment:
+  environment: production
+  region: us-west-2
+  
+  # Backup and disaster recovery
+  backup:
+    enable_backup: true
+    backup_schedule: "daily"
+    retention_days: 30
+    
+  # Security settings
+  security:
+    enable_encryption_at_rest: true
+    enable_encryption_in_transit: true
+    
+    # Network security
+    private_endpoint_enabled: true
+    allowed_ip_ranges:
+      - "10.0.0.0/8"  # Internal corporate network
+      
+# Cost Optimization
+cost_optimization:
+  # Auto-pause when not in use
+  auto_pause:
+    enabled: true
+    idle_timeout_minutes: 30
+    
+  # Spot instances for index building
+  use_spot_instances: true
+  spot_instance_percentage: 80
