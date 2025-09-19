@@ -191,26 +191,32 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 ## 📖 Documentation
 
 ### Implementation Guides
-- [Comprehensive Deployment Guide](COMPREHENSIVE_DEPLOYMENT_GUIDE.md)
-- [RAG Implementation Guide](RAG_IMPLEMENTATION_GUIDE.md)
-- [Production Configuration](docs/production-setup.md)
-- [API Documentation](docs/api-reference.md)
+- **Production Job Configuration**: [RAG_Production_Job_Configuration.json](AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_Production_Job_Configuration.json)
+- **Cluster Configuration**: [cluster-config.json](AgentBricks/Autoloader-Streaming/FIXED/Job_Config/cluster-config.json)
+- **Databricks Job Definition**: [databricks-job-definition.json](AgentBricks/Autoloader-Streaming/FIXED/Job_Config/databricks-job-definition.json)
+- **Vector Search Setup**: [Vector Search Configuration](AgentBricks/Autoloader-Streaming/FIXED/Job_Config/vector-search-config.yaml)
 
-### Best Practices
-- [Security Configuration](docs/security.md)
-- [Performance Optimization](docs/performance.md)
-- [Monitoring & Alerting](docs/monitoring.md)
-- [Troubleshooting Guide](docs/troubleshooting.md)
+### Key Notebooks & Components
+- **RAG Vector Search Setup**: [RAG_01_Vector_Search_Setup.py](AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_01_Vector_Search_Setup.py)
+- **Embeddings Pipeline**: [RAG_02_Embeddings_Pipeline.py](AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_02_Embeddings_Pipeline.py)
+- **Intelligent Search Interface**: [RAG_03_Intelligent_Search_Interface.py](AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_03_Intelligent_Search_Interface.py)
+- **Multi-Agent Orchestrator**: [05_Multi_Agent_Orchestrator_AgentBricks_TRUE_AI_HYBRID_FIXED.py](AgentBricks/Autoloader-Streaming/FIXED/05_Multi_Agent_Orchestrator_AgentBricks_TRUE_AI_HYBRID_FIXED.py)
+
+### Production Components
+- **Severity Classification Agent**: [01_Severity_Classification_Agent_TRUE_AI_HYBRID_FIXED.py](AgentBricks/Autoloader-Streaming/FIXED/01_Severity_Classification_Agent_TRUE_AI_HYBRID_FIXED.py)
+- **Network Operations Agent**: [03_Network_Ops_Agent_AgentBricks_TRUE_AI_HYBRID_FIXED.py](AgentBricks/Autoloader-Streaming/FIXED/03_Network_Ops_Agent_AgentBricks_TRUE_AI_HYBRID_FIXED.py)
+- **RCA Agent**: [04_RCA_Agent_AgentBricks_TRUE_AI_HYBRID_FIXED.py](AgentBricks/Autoloader-Streaming/FIXED/04_RCA_Agent_AgentBricks_TRUE_AI_HYBRID_FIXED.py)
+- **Production Interface**: [RAG_Working_Interface_FIXED.py](AgentBricks/Autoloader-Streaming/FIXED/RAG/RAG_Working_Interface_FIXED.py)
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
-- Code standards and conventions
-- Pull request process
-- Issue reporting
-- Development environment setup
+We welcome contributions from the community! Please:
+- Fork the repository and create feature branches
+- Follow existing code patterns and documentation standards
+- Submit pull requests with clear descriptions
+- Report issues using GitHub Issues with detailed reproduction steps
 
 ---
 
@@ -230,7 +236,7 @@ We welcome contributions from the community! Please see our [Contributing Guidel
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. Feel free to use, modify, and distribute according to the terms of the MIT License.
 
 ---
 
