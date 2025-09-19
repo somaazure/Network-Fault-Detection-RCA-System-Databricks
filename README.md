@@ -396,17 +396,12 @@ We welcome contributions from the community! Please:
 
 ---
 
-## 📞 Support & Contact
+## 📞 Support & Community
 
-### Enterprise Support
-- **Technical Support**: [support@networkrca.com](mailto:support@networkrca.com)
-- **Sales Inquiries**: [sales@networkrca.com](mailto:sales@networkrca.com)
-- **Implementation Services**: [services@networkrca.com](mailto:services@networkrca.com)
-
-### Community Resources
-- **Documentation**: [docs.networkrca.com](https://docs.networkrca.com)
-- **Community Forum**: [forum.networkrca.com](https://forum.networkrca.com)
-- **GitHub Issues**: [Report Issues](https://github.com/somaazure/Network-Fault-Detection-RCA-System-Databricks/issues)
+For questions, issues, or contributions:
+- **GitHub Issues**: [Report Issues or Request Features](https://github.com/somaazure/Network-Fault-Detection-RCA-System-Databricks/issues)
+- **Discussions**: Use GitHub Discussions for community questions
+- **Pull Requests**: Contributions welcome following our guidelines
 
 ---
 
@@ -416,12 +411,5 @@ This project is licensed under the MIT License. Feel free to use, modify, and di
 
 ---
 
-## 🏆 Awards & Recognition
 
-- **Databricks Innovation Award 2024**: Best AI-Powered Operations Solution
-- **Network Computing Excellence**: Outstanding Network Management Platform
-- **AI Breakthrough Award**: Best Enterprise AI Implementation
-
----
-
-*Built with ❤️ by the Network Operations AI Team*
+*Enterprise Network Fault Detection & RCA System - Powered by Databricks Foundation Models*
