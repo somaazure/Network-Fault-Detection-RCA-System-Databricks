@@ -21,122 +21,93 @@ An **enterprise-grade AI-powered network operations platform** that transforms h
 
 ### 🔄 End-to-End System Architecture
 
-```mermaid
-graph TB
-    %% Data Sources
-    subgraph "🌐 Network Infrastructure"
-        NS[📡 Network Switches]
-        NR[🔀 Routers]
-        NF[🔥 Firewalls]
-        NM[📊 Monitoring Tools]
-        NS --> |SNMP/Syslog| LI
-        NR --> |BGP/OSPF Logs| LI
-        NF --> |Security Events| LI
-        NM --> |Performance Data| LI
-    end
-
-    %% Ingestion Layer
-    subgraph "📥 Data Ingestion Layer"
-        LI[🔄 Autoloader Streaming]
-        DLT[⚡ Delta Live Tables]
-        LI --> |Real-time| DLT
-        DLT --> |Validated Data| UC
-    end
-
-    %% Storage Layer
-    subgraph "🏛️ Unity Catalog & Storage"
-        UC[🗄️ Unity Catalog]
-        DT[📊 Delta Tables]
-        CF[🔄 Change Data Feed]
-        UC --> DT
-        DT --> CF
-    end
-
-    %% AI Processing Layer
-    subgraph "🤖 AI Multi-Agent System"
-        SC[🎯 Severity Classification Agent]
-        IM[👨‍💼 Incident Manager Agent]
-        NO[🔧 Network Ops Agent]
-        RCA[🕵️ Root Cause Analysis Agent]
-        MAO[🎭 Multi-Agent Orchestrator]
-
-        CF --> SC
-        SC --> |P1/P2/P3/P4| MAO
-        MAO --> IM
-        MAO --> NO
-        MAO --> RCA
-    end
-
-    %% Knowledge Base
-    subgraph "🧠 Knowledge & Intelligence"
-        VS[🔍 Vector Search Engine]
-        EM[🎯 BGE Embeddings]
-        KD[📚 2,493 RCA Knowledge Base]
-        FM[🦙 Llama 3.1 8B Foundation Model]
-
-        KD --> EM
-        EM --> VS
-        RCA --> |Query| VS
-        VS --> |Context| FM
-        FM --> |Response| RCA
-    end
-
-    %% RAG System
-    subgraph "🎯 RAG Intelligence System"
-        QP[❓ Query Processing]
-        SR[🔍 Semantic Retrieval]
-        CR[📋 Context Ranking]
-        AG[🤖 Answer Generation]
-
-        VS --> QP
-        QP --> SR
-        SR --> CR
-        CR --> AG
-        AG --> |Intelligent Responses| UI
-    end
-
-    %% Output Layer
-    subgraph "📊 Monitoring & Alerts"
-        UI[💻 Lakeview Dashboards]
-        SN[📱 Slack Notifications]
-        EM_ALERT[📧 Email Alerts]
-        WH[🔗 Webhook Integrations]
-
-        IM --> SN
-        IM --> EM_ALERT
-        NO --> UI
-        RCA --> WH
-    end
-
-    %% External Integrations
-    subgraph "🔗 External Systems"
-        ITSM[🎫 ITSM (ServiceNow)]
-        MON[📈 Monitoring (Datadog)]
-        TEAM[👥 MS Teams]
-
-        WH --> ITSM
-        WH --> MON
-        SN --> TEAM
-    end
-
-    %% Styling
-    classDef sourceStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
-    classDef ingestionStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
-    classDef storageStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
-    classDef aiStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
-    classDef knowledgeStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
-    classDef ragStyle fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#000
-    classDef outputStyle fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px,color:#000
-    classDef externalStyle fill:#fafafa,stroke:#424242,stroke-width:2px,color:#000
-
-    class NS,NR,NF,NM sourceStyle
-    class LI,DLT ingestionStyle
-    class UC,DT,CF storageStyle
-    class SC,IM,NO,RCA,MAO aiStyle
-    class VS,EM,KD,FM knowledgeStyle
-    class QP,SR,CR,AG ragStyle
-    class UI,SN,EM_ALERT,WH outputStyle
-    class ITSM,MON,TEAM externalStyle
+```
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                           🌐 NETWORK INFRASTRUCTURE                                  │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  📡 Switches    🔀 Routers    🔥 Firewalls    📊 Monitoring Tools                   │
+│     │              │              │                │                                │
+│     └──────┬───────┴──────┬───────┴────────┬───────┘                                │
+│            │              │                │                                        │
+│        SNMP/Syslog    BGP/OSPF      Security Events                                 │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                        📥 DATA INGESTION LAYER                                      │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  🔄 Autoloader Streaming  ──Real-time──▶  ⚡ Delta Live Tables                     │
+│                                                │                                     │
+│                                         Validated Data                              │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                      🏛️ UNITY CATALOG & STORAGE                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  🗄️ Unity Catalog  ───▶  📊 Delta Tables  ───▶  🔄 Change Data Feed              │
+│                                                │                                     │
+│  • Data Governance        • ACID Transactions  • Real-time Updates                 │
+│  • Access Control         • Time Travel        • Streaming Analytics               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         🤖 AI MULTI-AGENT SYSTEM                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                   🎯 Severity Classification Agent                                  │
+│                              │                                                     │
+│                         P1/P2/P3/P4                                               │
+│                              │                                                     │
+│                              ▼                                                     │
+│  🎭 Multi-Agent Orchestrator ─┬─▶ 👨‍💼 Incident Manager                            │
+│                               ├─▶ 🔧 Network Ops Agent                            │
+│                               └─▶ 🕵️ Root Cause Analysis Agent ──┐                │
+└─────────────────────────────────────────────────────────────────┼─────────────────┘
+                             │                                    │
+                             │                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                       🧠 KNOWLEDGE & INTELLIGENCE                                   │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  📚 2,493 RCA Knowledge Base  ───▶  🎯 BGE Embeddings                              │
+│                                        │                                           │
+│                                        ▼                                           │
+│  🔍 Vector Search Engine  ◀──Query──  🕵️ RCA Agent                               │
+│         │                                                                          │
+│         └─Context─▶ 🦙 Llama 3.1 8B Foundation Model ──Response──┐                │
+└─────────────────────────────────────────────────────────────────┼─────────────────┘
+                             │                                    │
+                             │                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                       🎯 RAG INTELLIGENCE SYSTEM                                    │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ❓ Query Processing  ▶  🔍 Semantic Retrieval  ▶  📋 Context Ranking             │
+│                                        │                                           │
+│                                        ▼                                           │
+│                           🤖 Answer Generation                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                       📊 MONITORING & ALERTS                                       │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  💻 Lakeview Dashboards     📱 Slack Notifications     📧 Email Alerts            │
+│         │                            │                        │                   │
+│         └────────────────┬───────────┴─────────┬──────────────┘                   │
+│                          │                     │                                  │
+│                          ▼                     ▼                                  │
+│                🔗 Webhook Integrations                                             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                        🔗 EXTERNAL SYSTEMS                                          │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  🎫 ITSM (ServiceNow)    📈 Monitoring (Datadog)    👥 MS Teams                   │
+│                                                                                     │
+│  • Incident Management   • Performance Metrics      • Team Collaboration          │
+│  • SLA Tracking         • Alert Correlation         • Real-time Updates           │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 📊 Component Breakdown
