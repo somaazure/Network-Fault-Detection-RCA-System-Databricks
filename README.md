@@ -21,6 +21,8 @@ An **enterprise-grade AI-powered network operations platform** that transforms h
 
 ### 🔄 End-to-End System Architecture
 
+> 📊 **Interactive Diagram**: This Mermaid diagram renders with color-coded components and interactive navigation. If the diagram doesn't display, view it on [GitHub](https://github.com/somaazure/Network-Fault-Detection-RCA-System-Databricks) or any Mermaid-compatible viewer.
+
 ```mermaid
 graph LR
     %% Data Sources
