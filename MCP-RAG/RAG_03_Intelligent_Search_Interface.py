@@ -1,0 +1,834 @@
+# Databricks notebook source
+# MAGIC %md
+# MAGIC # 🤖 RAG Intelligent Search Interface
+# MAGIC
+# MAGIC **Purpose**: Natural language interface for intelligent search on RCA reports
+# MAGIC **Features**: Multi-index search, context-aware responses, search analytics
+# MAGIC **Integration**: Vector Search + Foundation Models + Business Logic
+
+# COMMAND ----------
+
+# Install required packages
+print("🔧 Installing required packages for Vector Search...")
+%pip install databricks-vectorsearch
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
+from databricks.vector_search.client import VectorSearchClient
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
+import mlflow
+import json
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+
+spark = SparkSession.builder.getOrCreate()
+try:
+    vs_client = VectorSearchClient(disable_notice=True)
+    print("✅ Vector Search client initialized")
+except Exception as e:
+    print(f"⚠️ Vector Search initialization failed: {str(e)}")
+    vs_client = None
+
+print("🤖 RAG Intelligent Search Interface")
+print("=" * 70)
+
+# COMMAND ----------
+
+# Configuration
+CATALOG_NAME = "network_fault_detection"
+SCHEMA_NAME = "processed_data"
+VS_ENDPOINT_NAME = "network_fault_detection_vs_endpoint"
+
+# Available indexes for different search patterns
+SEARCH_INDEXES = {
+    "comprehensive": f"{CATALOG_NAME}.{SCHEMA_NAME}.rca_comprehensive_index",
+    "technical": f"{CATALOG_NAME}.{SCHEMA_NAME}.rca_technical_index",
+    "solution": f"{CATALOG_NAME}.{SCHEMA_NAME}.rca_solution_index"
+}
+
+# Foundation model for RAG responses
+FOUNDATION_MODEL_NAME = "databricks-meta-llama-3-1-8b-instruct"
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## RAG Search Engine Class
+
+# COMMAND ----------
+
+class NetworkFaultRAGSearchEngine:
+    """Intelligent search engine for network fault RCA reports"""
+
+    def __init__(self):
+        self.vs_client = vs_client if vs_client else VectorSearchClient(disable_notice=True)
+        self.search_indexes = SEARCH_INDEXES
+        self.endpoint_name = VS_ENDPOINT_NAME
+        self.foundation_model = FOUNDATION_MODEL_NAME
+        self.search_history = []
+        self.available_indexes = []  # Initialize empty list to prevent AssertionError
+
+        print("🔧 Initializing NetworkFault RAG Search Engine...")
+        if self.vs_client:
+            self._validate_setup()
+        else:
+            print("⚠️ Vector Search client not available - using fallback mode")
+            self.available_indexes = []
+
+    def _validate_setup(self):
+        """Validate that all required components are available"""
+        try:
+            # Check vector search indexes
+            available_indexes = []
+            for index_type, index_name in self.search_indexes.items():
+                try:
+                    index_info = self.vs_client.get_index(
+                        endpoint_name=self.endpoint_name,
+                        index_name=index_name
+                    )
+                    available_indexes.append(index_type)
+                    print(f"   ✅ {index_type.title()} index available")
+                except Exception:
+                    print(f"   ❌ {index_type.title()} index not available")
+
+            self.available_indexes = available_indexes
+            print(f"🎯 RAG Engine initialized with {len(available_indexes)} search indexes")
+
+        except Exception as e:
+            print(f"❌ Error validating RAG setup: {str(e)}")
+            self.available_indexes = []
+
+    def determine_search_strategy(self, query: str) -> str:
+        """Determine the best search strategy based on query content"""
+        if not query or not isinstance(query, str):
+            return "comprehensive"  # Safe fallback
+
+        query_lower = query.lower()
+
+        # Ensure available_indexes is a list
+        if not hasattr(self, 'available_indexes') or not isinstance(self.available_indexes, list):
+            self.available_indexes = []
+
+        # Technical keywords
+        technical_keywords = [
+            "bgp", "ospf", "vlan", "interface", "router", "switch", "firewall",
+            "cpu", "memory", "bandwidth", "latency", "packet", "protocol"
+        ]
+
+        # Solution keywords
+        solution_keywords = [
+            "fix", "solve", "repair", "recommend", "solution", "how to",
+            "prevent", "avoid", "best practice", "troubleshoot"
+        ]
+
+        # Count keyword matches with safe iteration
+        technical_matches = 0
+        solution_matches = 0
+
+        try:
+            for keyword in technical_keywords:
+                if keyword and isinstance(keyword, str) and keyword in query_lower:
+                    technical_matches += 1
+
+            for keyword in solution_keywords:
+                if keyword and isinstance(keyword, str) and keyword in query_lower:
+                    solution_matches += 1
+
+        except Exception as e:
+            print(f"⚠️ Error counting keyword matches: {str(e)}")
+            print(f"   Query type: {type(query_lower)}")
+            print(f"   Technical keywords type: {type(technical_keywords)}")
+            technical_matches = 0
+            solution_matches = 0
+
+        # Determine strategy with safe index checking
+
+        if solution_matches > technical_matches and "solution" in self.available_indexes:
+            return "solution"
+        elif technical_matches > 0 and "technical" in self.available_indexes:
+            return "technical"
+        elif "comprehensive" in self.available_indexes:
+            return "comprehensive"
+        else:
+            # Fallback to first available index or default
+            if self.available_indexes and len(self.available_indexes) > 0:
+                return self.available_indexes[0]
+            else:
+                print("⚠️ No available indexes, using comprehensive as fallback")
+                return "comprehensive"
+
+    def search_similar_incidents(self, query: str, num_results: int = 5, strategy: str = None) -> Dict[str, Any]:
+        """Search for similar incidents using vector similarity"""
+
+        # Check if Vector Search client is available
+        if not self.vs_client:
+            return {"error": "Vector Search client not available. Please run RAG_01 and RAG_02 first."}
+
+        if not self.available_indexes:
+            return {"error": "No search indexes available. Please run RAG_02 to create indexes."}
+
+        # Determine search strategy
+        if strategy is None:
+            strategy = self.determine_search_strategy(query)
+
+        index_name = self.search_indexes.get(strategy, self.search_indexes.get("comprehensive", list(self.search_indexes.values())[0]))
+
+        print(f"🔍 Searching with {strategy} strategy using index: {index_name}")
+
+        try:
+            # Perform vector search
+            # Get index object and perform search
+            index = self.vs_client.get_index(
+                endpoint_name=self.endpoint_name,
+                index_name=index_name
+            )
+            # Use only columns that exist in the Vector Search indexes
+            search_results = index.similarity_search(
+                query_text=query,
+                columns=[
+                    "id", "root_cause_category", "incident_priority", "recommended_operation",
+                    "rca_analysis", "resolution_recommendations", "keywords"
+                ],
+                num_results=num_results
+            )
+
+            if search_results and 'result' in search_results and 'data_array' in search_results['result']:
+                results = search_results['result']['data_array']
+                print(f"✅ Found {len(results)} similar incidents")
+
+                # Process and enrich results using correct array format
+                processed_results = []
+                for i, result_row in enumerate(results, 1):
+                    # Updated column order: ["id", "root_cause_category", "incident_priority", "recommended_operation",
+                    #                        "rca_analysis", "resolution_recommendations", "keywords"]
+                    processed_result = {
+                        "rank": i,
+                        "incident_id": result_row[0] if len(result_row) > 0 else "Unknown",
+                        "component": result_row[1] if len(result_row) > 1 else "Unknown",
+                        "severity": result_row[2] if len(result_row) > 2 else "Unknown",
+                        "incident_type": result_row[3] if len(result_row) > 3 else "Unknown",
+                        "root_cause": result_row[4] if len(result_row) > 4 else "N/A",
+                        "recommendations": result_row[5] if len(result_row) > 5 else "N/A",
+                        "impact": "Vector Search Result",  # Static value since column not available
+                        "technical_details": result_row[4] if len(result_row) > 4 else "N/A",  # Use root_cause
+                        "confidence": "High",  # Static value since analysis_confidence not available
+                        "keywords": result_row[6] if len(result_row) > 6 else "N/A"
+                    }
+                    processed_results.append(processed_result)
+
+                return {
+                    "query": query,
+                    "strategy": strategy,
+                    "index_used": index_name,
+                    "results_count": len(processed_results),
+                    "results": processed_results,
+                    "timestamp": datetime.now().isoformat()
+                }
+
+            else:
+                return {
+                    "query": query,
+                    "strategy": strategy,
+                    "results_count": 0,
+                    "results": [],
+                    "message": "No similar incidents found"
+                }
+
+        except Exception as e:
+            return {
+                "query": query,
+                "error": f"Search failed: {str(e)}"
+            }
+
+    def generate_rag_response(self, query: str, search_results: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate intelligent response using Foundation Model + search context"""
+
+        if "error" in search_results:
+            return {"error": search_results["error"]}
+
+        if search_results["results_count"] == 0:
+            return {
+                "query": query,
+                "response": "I couldn't find any similar incidents in our knowledge base for your query. Please try rephrasing your question or provide more specific technical details.",
+                "confidence": "low",
+                "sources": []
+            }
+
+        try:
+            # Build context from search results
+            context_parts = []
+            sources = []
+
+            for result in search_results["results"][:3]:  # Use top 3 results for context
+                context_part = f"""
+Incident: {result['component']} - {result['incident_type']} (Priority: {result['severity']})
+Root Cause: {result['root_cause']}
+Recommendations: {result['recommendations']}
+Impact: {result['impact']}
+                """.strip()
+                context_parts.append(context_part)
+
+                sources.append({
+                    "incident_id": result['incident_id'],
+                    "component": result['component'],
+                    "incident_type": result['incident_type'],
+                    "severity": result['severity']
+                })
+
+            context = "\n\n---\n\n".join(context_parts)
+
+            # Create enhanced RAG prompt for higher quality responses
+            rag_prompt = f"""You are a senior network operations engineer with 15+ years of experience in enterprise network troubleshooting. Based on the similar incidents from our knowledge base, provide a comprehensive technical analysis and actionable solution for the user's question.
+
+**User Question:** {query}
+
+**Similar Historical Incidents:**
+{context}
+
+**Required Response Format:**
+1. **Incident Analysis:** Summarize the core issue and identify patterns across incidents
+2. **Root Cause Assessment:** Explain the technical reasons behind the problem
+3. **Immediate Actions:** List 3-5 specific troubleshooting steps in priority order
+4. **Long-term Prevention:** Suggest preventive measures to avoid recurrence
+5. **Severity Impact:** Assess business impact and urgency level
+6. **Additional Considerations:** Note any related components or dependencies
+
+**Guidelines:**
+- Use specific technical terminology appropriate for network engineers
+- Include actual commands, configuration examples, or diagnostic steps where relevant
+- Reference industry best practices and standards
+- Provide realistic timeframes for resolution steps
+- Mention any tools or monitoring that would help
+
+**Technical Response:**"""
+
+            # Try to use Foundation Model (with fallback to rule-based response)
+            try:
+                # Try different MLflow client approaches
+                try:
+                    from mlflow.deployments import get_deploy_client
+                    client = get_deploy_client("databricks")
+                except ImportError:
+                    import mlflow
+                    client = mlflow.deployments.get_deploy_client("databricks")
+
+                # Try different prediction methods
+                try:
+                    response = client.predict(
+                        endpoint=self.foundation_model,
+                        inputs={
+                            "messages": [
+                                {"role": "user", "content": rag_prompt}
+                            ],
+                            "temperature": 0.3,
+                            "max_tokens": 2000
+                        }
+                    )
+                except Exception:
+                    # Try alternative prediction format
+                    response = client.predict(
+                        endpoint=self.foundation_model,
+                        inputs={
+                            "prompt": rag_prompt,
+                            "temperature": 0.3,
+                            "max_tokens": 2000
+                        }
+                    )
+
+                # Handle different response formats from Foundation Model
+                ai_response = None
+
+                # MLflow Foundation Model response extraction
+
+                try:
+                    # Try multiple extraction methods for DatabricksEndpoint
+                    response_data = None
+
+                    # Method 1: Try dict-like access for DatabricksEndpoint
+                    try:
+                        if 'choices' in response and response['choices']:
+                            choice = response['choices'][0]
+                            if isinstance(choice, dict) and 'message' in choice:
+                                ai_response = choice['message']['content']
+                            elif hasattr(choice, 'message'):
+                                ai_response = choice.message.content
+                    except Exception:
+                        pass
+
+                    # Method 2: Try attribute access
+                    if not ai_response and hasattr(response, 'choices'):
+                        try:
+                            choices = getattr(response, 'choices')
+                            if choices:
+                                choice = choices[0]
+                                if hasattr(choice, 'message'):
+                                    ai_response = choice.message.content
+                        except Exception:
+                            pass
+
+                    # Method 3: Try to convert to dict
+                    if not ai_response:
+                        try:
+                            response_data = dict(response)
+                            if 'choices' in response_data and response_data['choices']:
+                                choice = response_data['choices'][0]
+                                if isinstance(choice, dict) and 'message' in choice:
+                                    ai_response = choice['message']['content']
+                        except Exception:
+                            pass
+
+                except Exception as parse_error:
+                    print(f"⚠️ Error parsing AI response: {str(parse_error)}")
+                    ai_response = None
+
+                if not ai_response:
+                    raise Exception("Could not extract response from Foundation Model")
+
+                return {
+                    "query": query,
+                    "response": ai_response,
+                    "method": "ai_generated",
+                    "confidence": "high",
+                    "sources": sources,
+                    "context_incidents": len(search_results["results"]),
+                    "timestamp": datetime.now().isoformat()
+                }
+
+            except Exception as ai_error:
+                print(f"⚠️ AI response failed, using structured response: {str(ai_error)}")
+
+                # Fallback to structured response
+                structured_response = self._generate_structured_response(query, search_results["results"])
+
+                return {
+                    "query": query,
+                    "response": structured_response,
+                    "method": "structured_fallback",
+                    "confidence": "medium",
+                    "sources": sources,
+                    "context_incidents": len(search_results["results"]),
+                    "timestamp": datetime.now().isoformat()
+                }
+
+        except Exception as e:
+            return {
+                "query": query,
+                "error": f"Failed to generate RAG response: {str(e)}"
+            }
+
+    def _generate_structured_response(self, query: str, results: List[Dict]) -> str:
+        """Generate structured response when AI is not available"""
+        if not results:
+            return "No similar incidents found in our knowledge base."
+
+        top_result = results[0]
+
+        response_parts = [
+            f"Based on similar incidents in our network fault database:",
+            f"",
+            f"🔍 **Most Similar Incident:**",
+            f"   Component: {top_result['component']}",
+            f"   Type: {top_result['incident_type']}",
+            f"   Severity: {top_result['severity']}",
+            f"",
+            f"🎯 **Root Cause Analysis:**",
+            f"   {top_result['root_cause'][:300]}{'...' if len(top_result['root_cause']) > 300 else ''}",
+            f"",
+            f"💡 **Recommended Actions:**",
+            f"   {top_result['recommendations'][:300]}{'...' if len(top_result['recommendations']) > 300 else ''}"
+        ]
+
+        if len(results) > 1:
+            response_parts.extend([
+                f"",
+                f"📊 **Additional Context:** Found {len(results)} similar incidents with related patterns.",
+            ])
+
+        return "\n".join(response_parts)
+
+    def intelligent_search(self, query: str, num_results: int = 5) -> Dict[str, Any]:
+        """Complete intelligent search with RAG response"""
+        print(f"🤖 Processing intelligent search: '{query}'")
+
+        # Step 1: Vector similarity search
+        search_results = self.search_similar_incidents(query, num_results)
+
+        # Step 2: Generate RAG response
+        rag_response = self.generate_rag_response(query, search_results)
+
+        # Step 3: Combine results
+        final_result = {
+            "query": query,
+            "search_results": search_results,
+            "rag_response": rag_response,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        # Step 4: Store search history
+        self.search_history.append({
+            "query": query,
+            "timestamp": datetime.now().isoformat(),
+            "results_found": search_results.get("results_count", 0),
+            "method": rag_response.get("method", "unknown")
+        })
+
+        return final_result
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Initialize RAG Search Engine
+
+# COMMAND ----------
+
+# Initialize the RAG search engine with error handling
+try:
+    print("🚀 Initializing RAG Search Engine...")
+    rag_engine = NetworkFaultRAGSearchEngine()
+    print(f"✅ RAG Engine initialized with {len(rag_engine.available_indexes)} available indexes")
+except Exception as init_error:
+    print(f"❌ RAG Engine initialization failed: {str(init_error)}")
+    print("💡 This may indicate Vector Search setup issues. Run RAG_01 and RAG_02 first.")
+    rag_engine = None
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Interactive Search Interface
+
+# COMMAND ----------
+
+def demo_intelligent_search():
+    """Demonstrate intelligent search capabilities"""
+    print("🎯 DEMONSTRATING RAG INTELLIGENT SEARCH")
+    print("=" * 70)
+
+    # Check if RAG engine is available
+    if not rag_engine:
+        print("❌ RAG engine not available. Cannot run demonstration.")
+        print("💡 Please run RAG_01 and RAG_02 first to set up Vector Search.")
+        return
+
+    # Test queries representing common network operations scenarios
+    demo_queries = [
+        "Router interface is down and causing connectivity issues",
+        "High CPU utilization on network device affecting performance",
+        "BGP neighbor down causing routing problems",
+        "How to fix firewall configuration causing security issues",
+        "Network performance degradation troubleshooting steps",
+        "What causes VLAN connectivity problems",
+        "DNS resolution failures in network infrastructure"
+    ]
+
+    for i, query in enumerate(demo_queries, 1):
+        print(f"\n🔍 Demo Query {i}: '{query}'")
+        print("-" * 50)
+
+        try:
+            # Perform intelligent search
+            result = rag_engine.intelligent_search(query, num_results=3)
+
+            # Display results
+            search_info = result["search_results"]
+            rag_info = result["rag_response"]
+
+            print(f"📊 Search Results: {search_info.get('results_count', 0)} similar incidents found")
+
+            if "error" not in rag_info:
+                print(f"🤖 RAG Response Method: {rag_info.get('method', 'unknown')}")
+                print(f"🎯 Confidence: {rag_info.get('confidence', 'unknown')}")
+                print(f"📋 Sources: {len(rag_info.get('sources', []))} incident references")
+
+                # Show full response
+                full_response = rag_info.get('response', 'No response generated')
+                print(f"💬 Full RAG Response:")
+                print(f"{full_response}")
+
+            else:
+                print(f"❌ RAG Error: {rag_info['error']}")
+
+        except Exception as e:
+            print(f"❌ Demo search failed: {str(e)}")
+
+        print()
+
+    print("🎯 Intelligent search demonstration completed!")
+
+# Run demonstration
+demo_intelligent_search()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Advanced Search Features
+
+# COMMAND ----------
+
+def advanced_search_features():
+    """Demonstrate advanced search capabilities"""
+    print("🚀 ADVANCED SEARCH FEATURES")
+    print("=" * 50)
+
+    # Check if RAG engine is available
+    if not rag_engine:
+        print("❌ RAG engine not available. Cannot run advanced features.")
+        return
+
+    # Multi-strategy search comparison
+    test_query = "router BGP protocol failure high priority incident"
+
+    print(f"🔍 Comparing search strategies for: '{test_query}'")
+    print()
+
+    strategies = ["comprehensive", "technical", "solution"]
+
+    for strategy in strategies:
+        if strategy in rag_engine.available_indexes:
+            print(f"📊 {strategy.title()} Strategy:")
+            try:
+                results = rag_engine.search_similar_incidents(test_query, num_results=3, strategy=strategy)
+                print(f"   Results: {results.get('results_count', 0)} incidents")
+                print(f"   Index: {results.get('index_used', 'unknown')}")
+
+                if results.get('results'):
+                    top_result = results['results'][0]
+                    print(f"   Top Match: {top_result['component']} - {top_result['incident_type']}")
+
+            except Exception as e:
+                print(f"   ❌ Error: {str(e)}")
+        else:
+            print(f"❌ {strategy.title()} Strategy: Index not available")
+
+        print()
+
+# Run advanced features demo
+advanced_search_features()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Search Analytics and Monitoring
+
+# COMMAND ----------
+
+def display_search_analytics():
+    """Display search analytics and usage patterns"""
+    print("📊 SEARCH ANALYTICS")
+    print("=" * 50)
+
+    # Check if RAG engine is available
+    if not rag_engine:
+        print("❌ RAG engine not available. Cannot display analytics.")
+        return
+
+    # Check if rag_engine exists and has search_history attribute
+    if not rag_engine or not hasattr(rag_engine, 'search_history'):
+        print("ℹ️ No search history available - RAG engine not initialized")
+        return
+
+    if not rag_engine.search_history:
+        print("ℹ️ No search history available yet")
+        print("💡 Run some demo searches first to see analytics")
+        return
+
+    try:
+        # Safely get search history
+        search_history = getattr(rag_engine, 'search_history', [])
+        if not isinstance(search_history, list):
+            search_history = []
+
+        total_searches = len(search_history)
+
+        if total_searches == 0:
+            print("ℹ️ No search history available yet")
+            print("💡 Run some demo searches first to see analytics")
+            return
+
+        successful_searches = 0
+        total_results_found = 0
+
+        for search in search_history:
+            if isinstance(search, dict):
+                if search.get('results_found', 0) > 0:
+                    successful_searches += 1
+                total_results_found += search.get('results_found', 0)
+
+        avg_results = total_results_found / total_searches if total_searches > 0 else 0
+
+    except Exception as e:
+        print(f"❌ Error processing search analytics: {str(e)}")
+        print(f"📊 Search history type: {type(getattr(rag_engine, 'search_history', 'not found'))}")
+        print(f"📊 Search history length: {len(search_history) if 'search_history' in locals() else 'unknown'}")
+        if 'search_history' in locals() and search_history:
+            print(f"📊 First entry type: {type(search_history[0]) if search_history else 'empty'}")
+        return
+
+    print(f"🔍 Total Searches: {total_searches}")
+    print(f"✅ Successful Searches: {successful_searches} ({(successful_searches/total_searches)*100:.1f}%)")
+    print(f"📊 Average Results per Search: {avg_results:.1f}")
+
+    # Method usage with error handling
+    try:
+        methods = {}
+        for search in search_history:
+            method = search.get('method', 'unknown')
+            methods[method] = methods.get(method, 0) + 1
+
+        if methods:
+            print(f"\n🤖 Response Methods:")
+            for method, count in methods.items():
+                print(f"   {method}: {count} ({(count/total_searches)*100:.1f}%)")
+
+        # Recent searches
+        if search_history:
+            print(f"\n🕐 Recent Searches:")
+            for search in search_history[-3:]:
+                query_preview = search.get('query', 'Unknown query')[:50]
+                results_count = search.get('results_found', 0)
+                print(f"   '{query_preview}...' - {results_count} results")
+    except Exception as e:
+        print(f"❌ Error displaying search methods and history: {str(e)}")
+        print(f"📊 Available search data: {len(search_history) if 'search_history' in locals() else 0} entries")
+
+# Display analytics
+display_search_analytics()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Custom Search Interface
+
+# COMMAND ----------
+
+def custom_search_interface():
+    """Interactive search interface for custom queries"""
+    print("💬 CUSTOM SEARCH INTERFACE")
+    print("=" * 50)
+
+    # Check if RAG engine is available
+    if not rag_engine:
+        print("❌ RAG engine not available. Cannot run custom search interface.")
+        print("💡 Please run RAG_01 and RAG_02 first to set up Vector Search.")
+        return
+
+    # Example usage - in production, this would be interactive
+    custom_queries = [
+        "Show me all router failures with high severity",
+        "What are common solutions for interface down problems",
+        "Find incidents related to BGP routing configuration"
+    ]
+
+    for query in custom_queries:
+        print(f"\n🎯 Custom Query: '{query}'")
+        print("-" * 30)
+
+        try:
+            result = rag_engine.intelligent_search(query, num_results=3)
+            rag_response = result["rag_response"]
+
+            if "error" not in rag_response:
+                print(f"🤖 Full RAG Response:")
+                response_text = rag_response.get("response", "No response generated")
+                print(f"{response_text}")
+
+                sources_count = len(rag_response.get("sources", []))
+                if sources_count > 0:
+                    print(f"\n📚 Sources: {sources_count} related incidents")
+            else:
+                print(f"❌ Error: {rag_response['error']}")
+        except Exception as e:
+            print(f"❌ Custom search failed: {str(e)}")
+
+        print()
+
+    print("✅ Custom search interface demonstration completed")
+
+# Run custom interface
+custom_search_interface()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Export RAG Configuration
+
+# COMMAND ----------
+
+# Export complete RAG system configuration
+rag_config = {
+    "system_info": {
+        "endpoint_name": VS_ENDPOINT_NAME,
+        "available_indexes": rag_engine.available_indexes if rag_engine else [],
+        "foundation_model": FOUNDATION_MODEL_NAME,
+        "rag_engine_status": "initialized" if rag_engine else "failed"
+    },
+    "search_capabilities": {
+        "multi_strategy_search": bool(rag_engine),
+        "ai_responses": bool(rag_engine),
+        "structured_fallback": True,
+        "search_analytics": bool(rag_engine)
+    },
+    "performance_metrics": {
+        "total_searches": len(rag_engine.search_history) if rag_engine else 0,
+        "setup_timestamp": datetime.now().isoformat()
+    },
+    "usage_instructions": {
+        "basic_search": "Use rag_engine.intelligent_search('your query')",
+        "strategy_search": "Use rag_engine.search_similar_incidents('query', strategy='technical')",
+        "custom_integration": "Import NetworkFaultRAGSearchEngine class"
+    }
+}
+
+print("📋 RAG SYSTEM CONFIGURATION")
+print("=" * 50)
+print(json.dumps(rag_config, indent=2))
+
+print("\n🎯 RAG INTELLIGENT SEARCH SYSTEM READY!")
+print("💡 Use the NetworkFaultRAGSearchEngine class for production integration")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Production Integration Example
+
+# COMMAND ----------
+
+# Example production integration
+production_example = '''
+# Production Integration Example
+
+from rag_search_engine import NetworkFaultRAGSearchEngine
+
+# Initialize RAG engine
+rag = NetworkFaultRAGSearchEngine()
+
+# Handle user query
+def handle_user_query(user_question):
+    """Handle user query with intelligent search"""
+
+    # Perform intelligent search
+    result = rag.intelligent_search(user_question, num_results=5)
+
+    # Extract response
+    response = result["rag_response"]["response"]
+    sources = result["rag_response"].get("sources", [])
+    confidence = result["rag_response"].get("confidence", "unknown")
+
+    return {
+        "answer": response,
+        "confidence": confidence,
+        "source_count": len(sources),
+        "related_incidents": sources
+    }
+
+# Example usage
+answer = handle_user_query("How do I fix BGP neighbor down issues?")
+print(answer["answer"])
+'''
+
+print("💻 PRODUCTION INTEGRATION EXAMPLE:")
+print(production_example)
+
+print("\n🎯 RAG_03 DEPLOYMENT COMPLETE!")
+print("✅ Intelligent Search Interface Ready")
+print("🚀 Next step: Run RAG_04_End_to_End_Testing.py")
