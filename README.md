@@ -37,15 +37,15 @@ An **enterprise-grade AI-powered network operations platform** that transforms h
 </div>
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ff6600"}, "flowchart": {"nodeSpacing": 100, "rankSpacing": 150}}}%%
+%%{init: {"theme": "dark", "themeVariables": {"primaryColor": "#ff6600", "primaryTextColor": "#ffffff", "primaryBorderColor": "#ff6600", "lineColor": "#ffffff", "edgeLabelBackground": "#333333", "clusterBkg": "#1a1a1a", "clusterBorder": "#ffffff", "mainBkg": "#2a2a2a", "secondBkg": "#1a1a1a", "tertiaryBkg": "#2a2a2a"}, "flowchart": {"nodeSpacing": 30, "rankSpacing": 40, "curve": "linear"}}}%%
 
 flowchart TD
     A["🌐 Network Logs"]
-    B["🧱 Databricks<br/>Streaming Pipeline"]
-    C["📚 RCA Knowledge Base<br/>2,493 Records"]
+    B["🧱 Databricks Pipeline"]
+    C["📚 RCA Knowledge<br/>2,493 Records"]
     D["🤖 AI Agents<br/>RAG + MCP"]
     E["🦙 Llama 3.1 8B"]
-    F["📊 Chat Interface<br/>& Alerts"]
+    F["📊 Chat & Alerts"]
 
     A ==> B
     B ==> C
@@ -54,9 +54,9 @@ flowchart TD
     D ==> F
     D -.-> C
 
-    classDef default fill:#e1f5fe,stroke:#01579b,stroke-width:3px,color:#000
-    classDef databricks fill:#ff6600,stroke:#cc5200,stroke-width:4px,color:#fff
-    classDef ai fill:#fff3e0,stroke:#ff8f00,stroke-width:3px,color:#000
+    classDef default fill:#2a2a2a,stroke:#ffffff,stroke-width:2px,color:#ffffff,font-size:12px
+    classDef databricks fill:#ff6600,stroke:#ffffff,stroke-width:3px,color:#ffffff,font-size:12px,font-weight:bold
+    classDef ai fill:#4a4a4a,stroke:#ffffff,stroke-width:2px,color:#ffffff,font-size:12px
 
     class B databricks
     class D,E ai
