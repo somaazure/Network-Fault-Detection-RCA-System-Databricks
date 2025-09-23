@@ -286,7 +286,7 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 
 ### 🤖 AI-Powered RAG Chat Interface
 
-![Network RCA Assistant](PROJECT_FINAL_ORGANIZED/Screenshots/ChatBot_Flask.png)
+![Network RCA Assistant](Screenshots/ChatBot_Flask.png)
 
 *Interactive chat interface powered by RAG with 2,493 RCA records for intelligent network troubleshooting*
 
@@ -302,7 +302,7 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 
 ### 📊 Production Pipeline & Job Management
 
-![Production Pipeline](PROJECT_FINAL_ORGANIZED/Screenshots/Network_Fault_Detection_Production_Pipeline.png)
+![Production Pipeline](Screenshots/Network_Fault_Detection_Production_Pipeline.png)
 
 *Automated production pipeline with 24/7 job orchestration and monitoring*
 
@@ -317,7 +317,7 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 
 ### 🔍 Vector Search & Knowledge Base
 
-![Vector Search Index](PROJECT_FINAL_ORGANIZED/Screenshots/rca_reports_vector_index_Overview.png)
+![Vector Search Index](Screenshots/rca_reports_vector_index_Overview.png)
 
 *Production vector search index with 2,493 RCA records and BGE embeddings*
 
@@ -332,7 +332,7 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 
 ### 🚀 Databricks Apps Deployment
 
-![Flask App Deployment](PROJECT_FINAL_ORGANIZED/Screenshots/Flask_App_Deployed.png)
+![Flask App Deployment](Screenshots/Flask_App_Deployed.png)
 
 *Production Flask application deployed on Databricks Apps platform*
 
@@ -347,7 +347,7 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 
 ### 📊 Production Data & RCA Intelligence
 
-![RCA Reports Data](PROJECT_FINAL_ORGANIZED/Screenshots/rca_reports_streaming_Data.png)
+![RCA Reports Data](Screenshots/rca_reports_streaming_Data.png)
 
 *Live RCA reports streaming data with intelligent analysis and recommendations*
 
