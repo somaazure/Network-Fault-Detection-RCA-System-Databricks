@@ -141,21 +141,24 @@ This folder contains the complete **Severity Classification Agent** implementati
 
 ---
 
-## 📸 **Visual Documentation**
+## 📸 **Visual Documentation Summary**
+
+The screenshots embedded throughout this documentation demonstrate:
 
 ### **🚀 Model Serving Infrastructure**
-
-![Model Serving List](screenshots/ModelServing%20list.png)
-*Complete view of active Databricks Model Serving endpoints*
+- **Active Endpoints Overview**: Complete view of production Databricks Model Serving endpoints
+- **Infrastructure Status**: Real-time monitoring of serving endpoint availability and health
 
 ### **⚙️ Endpoint Configuration & Monitoring**
+- **Detailed Configuration**: Comprehensive serving endpoint dashboard with performance metrics
+- **Real-time Monitoring**: Live deployment status, resource utilization, and traffic patterns
+- **Production Readiness**: Enterprise-grade monitoring and scaling capabilities
 
-![Serving Endpoint Dashboard](screenshots/Serving%20endpoint.png)
-*Detailed serving endpoint configuration with performance metrics*
-
-### **📊 Production Monitoring & Health**
-
-*Real-time monitoring capabilities are demonstrated through the endpoint configuration dashboard above, showing endpoint health, traffic patterns, and resource utilization metrics.*
+### **📊 Key Visual Evidence**
+- ✅ **Production Deployment**: Live Databricks serving endpoints in operation
+- ✅ **Enterprise Integration**: Professional ML infrastructure management
+- ✅ **Performance Monitoring**: Real-time metrics and health indicators
+- ✅ **Scalable Architecture**: Auto-scaling and resource optimization
 
 ---
 
