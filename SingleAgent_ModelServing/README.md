@@ -27,6 +27,11 @@ This folder contains the complete **Severity Classification Agent** implementati
 - **`agents/__init__.py`** - Python package initialization
 
 ### **🚀 ML Serving Endpoint**
+
+![Model Serving Infrastructure](screenshots/ModelServing%20list.png)
+
+*Production-ready Databricks Model Serving infrastructure showing active endpoints*
+
 - **`notebooks/Create_Serving_Endpoint.py`** - Complete Databricks notebook for ML serving endpoint creation
   - MLflow model registration and versioning
   - Unity Catalog compatible model naming
@@ -86,6 +91,11 @@ This folder contains the complete **Severity Classification Agent** implementati
 - **Downtime Estimation**: Projected service restoration time
 
 ### **Foundation Model Integration**
+
+![Serving Endpoint Configuration](screenshots/Serving%20endpoint.png)
+
+*Databricks serving endpoint dashboard showing real-time model deployment and monitoring*
+
 - **Databricks Model Serving**: Meta Llama 3.1 405B Instruct
 - **JSON Response Parsing**: Structured data extraction
 - **Prompt Engineering**: Optimized for telecom network scenarios
@@ -100,6 +110,10 @@ This folder contains the complete **Severity Classification Agent** implementati
 ---
 
 ## 🔄 **Integration Status**
+
+![Production Monitoring](screenshots/Serving%20endpoint%20-%20Copy.png)
+
+*Production monitoring interface showing endpoint performance, scaling, and health metrics*
 
 ### **✅ Ready for Integration**
 - **RCA Generation Pipeline**: Agent output ready for RCA input
@@ -128,6 +142,25 @@ This folder contains the complete **Severity Classification Agent** implementati
 - **Consistent Classification** - Eliminates human classification errors
 - **Real-time Processing** - Immediate incident prioritization
 - **Cost Effective** - Databricks unified platform approach
+
+---
+
+## 📸 **Visual Documentation**
+
+### **🚀 Model Serving Infrastructure**
+
+![Model Serving List](screenshots/ModelServing%20list.png)
+*Complete view of active Databricks Model Serving endpoints*
+
+### **⚙️ Endpoint Configuration & Monitoring**
+
+![Serving Endpoint Dashboard](screenshots/Serving%20endpoint.png)
+*Detailed serving endpoint configuration with performance metrics*
+
+### **📊 Production Monitoring & Health**
+
+![Production Monitoring](screenshots/Serving%20endpoint%20-%20Copy.png)
+*Real-time monitoring showing endpoint health, traffic, and resource utilization*
 
 ---
 
