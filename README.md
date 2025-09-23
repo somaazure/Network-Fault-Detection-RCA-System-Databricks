@@ -15,125 +15,136 @@ An **enterprise-grade AI-powered network operations platform** that transforms h
 - **60% improvement** in network operations efficiency
 - **Zero knowledge loss** during staff transitions
 
+### 🎯 Live System Demonstrations
+- **🤖 [AI Chat Interface](#-ai-powered-rag-chat-interface)**: Interactive RAG chatbot with 2,493 RCA records
+- **🚀 [Production Pipeline](#-production-pipeline--job-management)**: 24/7 automated job orchestration
+- **🔍 [Vector Search](#-vector-search--knowledge-base)**: Live BGE embeddings with semantic search
+- **📱 [App Deployment](#-databricks-apps-deployment)**: Production Flask app on Databricks Apps
+- **📊 [Live Data](#-production-data--rca-intelligence)**: Real-time RCA streaming with AI analysis
+
 ---
 
 ## 🏗️ System Architecture
 
 ### 🔄 End-to-End System Architecture
 
-> 📊 **Interactive Diagram**: This Mermaid diagram renders with color-coded components and interactive navigation. If the diagram doesn't display, view it on [GitHub](https://github.com/somaazure/Network-Fault-Detection-RCA-System-Databricks) or any Mermaid-compatible viewer.
+## 🏗️ Databricks Multi Agent System with RAG-MCP
+
+> 📊 **Enhanced Interactive Diagram**: This enlarged Mermaid diagram renders with enhanced visibility, color-coded components, and interactive navigation. The diagram is optimized for better readability with increased node spacing and font sizes.
+
+<div align="center">
+<h3>🔍 Click to expand diagram for full-screen viewing</h3>
+</div>
 
 ```mermaid
-graph LR
-    %% Data Sources
-    subgraph Network_Infrastructure ["🌐 Network Infrastructure"]
-        NS["📡 Network Switches"]
-        NR["🔀 Routers"]
-        NF["🔥 Firewalls"]
-        NM["📊 Monitoring Tools"]
-        NS --> |SNMP/Syslog| LI
-        NR --> |BGP/OSPF Logs| LI
-        NF --> |Security Events| LI
-        NM --> |Performance Data| LI
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ff6600", "primaryTextColor": "#000000", "primaryBorderColor": "#ff6600", "lineColor": "#333333", "edgeLabelBackground": "#ffffff", "clusterBkg": "#f8f9fa", "clusterBorder": "#cccccc", "mainBkg": "#ffffff", "secondBkg": "#f8f9fa", "tertiaryBkg": "#ffffff"}, "flowchart": {"nodeSpacing": 80, "rankSpacing": 120, "curve": "linear", "useMaxWidth": true, "htmlLabels": true, "diagramPadding": 20}}}%%
+
+flowchart TD
+    %% Header Section
+    DB[("🧱 DATABRICKS<br/>AI Vector Search<br/>Model Serving<br/>RCA-Chatbot")]
+
+    %% Knowledge & Intelligence Section
+    subgraph KNOWLEDGE ["🧠 Knowledge & Intelligence"]
+        KB["📚 Knowledge Base<br/>2,493 RCA Records"]
+        EMB["🎯 BGE Embeddings<br/>Vector Processing"]
+        VS["🔍 Vector Search<br/>Engine"]
+        LLM["🦙 LLM Foundation<br/>Llama 3.1 8B"]
     end
 
-    %% Ingestion Layer
-    subgraph Data_Ingestion ["📥 Data Ingestion Layer"]
-        LI["🔄 Autoloader Streaming"]
-        DLT["⚡ Delta Live Tables"]
-        LI --> |Real-time| DLT
-        DLT --> |Validated Data| UC
+    %% AI Multi-Agent RAG-MCP Core
+    subgraph CORE ["🤖 AI Multi-Agent RAG-MCP System"]
+        direction TB
+        SC["🎯 Severity Classification<br/>Agent"]
+        IM["👨‍💼 Incident Manager<br/>Agent"]
+        NO["🔧 Network Ops<br/>Agent"]
+        RCA_AGENT["🕵️ Root Cause Analysis<br/>Agent"]
+        MAO["🎭 Multi-Agent<br/>Orchestrator"]
     end
 
-    %% Storage Layer
-    subgraph Storage ["🏛️ Unity Catalog & Storage"]
-        UC["🗄️ Unity Catalog"]
-        DT["📊 Delta Tables"]
-        CF["🔄 Change Data Feed"]
-        UC --> DT
-        DT --> CF
+    %% RAG Intelligence System
+    subgraph RAG_MCP ["🎯 RAG Intelligence System"]
+        direction LR
+        QP["❓ Query<br/>Processing"]
+        SR["🔍 Semantic<br/>Retrieval"]
+        CR["📋 Context<br/>Ranking"]
+        MCP["🔗 Model Context<br/>Protocol"]
     end
 
-    %% AI Processing Layer
-    subgraph AI_Agents ["🤖 AI Multi-Agent System"]
-        SC["🎯 Severity Classification Agent"]
-        IM["👨‍💼 Incident Manager Agent"]
-        NO["🔧 Network Ops Agent"]
-        RCA["🕵️ Root Cause Analysis Agent"]
-        MAO["🎭 Multi-Agent Orchestrator"]
-
-        CF --> SC
-        SC --> |P1/P2/P3/P4| MAO
-        MAO --> IM
-        MAO --> NO
-        MAO --> RCA
+    %% Network Infrastructure
+    subgraph NETWORK ["🌐 Network Infrastructure"]
+        direction TB
+        NSW["📡 Network<br/>Switches"]
+        RTR["🔀 Routers<br/>& BGP"]
+        FW["🔥 Firewalls<br/>& Security"]
+        TOOLS["📊 Monitoring<br/>Tools"]
     end
 
-    %% Knowledge Base
-    subgraph Knowledge ["🧠 Knowledge & Intelligence"]
-        KD["📚 2,493 RCA Knowledge Base"]
-        EM["🎯 BGE Embeddings"]
-        VS["🔍 Vector Search Engine"]
-        FM["🦙 Llama 3.1 8B Foundation Model"]
-
-        KD --> EM --> VS
-        RCA --> |Query| VS
-        VS --> |Context| FM
-        FM --> |Response| RCA
+    %% Data Pipeline
+    subgraph PIPELINE ["📥 Automated Streaming Pipeline"]
+        direction TB
+        AL["🔄 Autoloader<br/>Streaming"]
+        DLT["⚡ Delta Live<br/>Tables"]
+        UC["🗄️ Unity Catalog<br/>Data Governance"]
+        DT["📊 Delta Tables<br/>& Change Data Feed"]
     end
 
-    %% RAG System
-    subgraph RAG_System ["🎯 RAG Intelligence System"]
-        QP["❓ Query Processing"]
-        SR["🔍 Semantic Retrieval"]
-        CR["📋 Context Ranking"]
-        AG["🤖 Answer Generation"]
-
-        VS --> QP --> SR --> CR --> AG --> |Intelligent Responses| UI
+    %% Output Systems
+    subgraph OUTPUT ["📊 Monitoring & Alerts"]
+        direction TB
+        UI["💻 Lakeview<br/>Dashboards"]
+        SLACK["📱 Slack<br/>Notifications"]
+        EMAIL["📧 Email<br/>Alerts"]
+        WH["🔗 Webhook<br/>Integrations"]
     end
 
-    %% Output Layer
-    subgraph Output ["📊 Monitoring & Alerts"]
-        UI["💻 Lakeview Dashboards"]
-        SN["📱 Slack Notifications"]
-        EM_ALERT["📧 Email Alerts"]
-        WH["🔗 Webhook Integrations"]
-
-        IM --> SN
-        IM --> EM_ALERT
-        NO --> UI
-        RCA --> WH
+    %% External Systems
+    subgraph EXTERNAL ["🔗 External Systems"]
+        direction TB
+        ITSM["🎫 ITSM<br/>ServiceNow"]
+        MON["📈 Monitoring<br/>Datadog/Splunk"]
+        TEAMS["👥 MS Teams<br/>Collaboration"]
     end
 
-    %% External Integrations
-    subgraph External ["🔗 External Systems"]
-        ITSM["🎫 ITSM (ServiceNow)"]
-        MON["📈 Monitoring (Datadog)"]
-        TEAM["👥 MS Teams"]
+    %% Main Flow Connections
+    DB --> KNOWLEDGE
+    DB --> CORE
 
-        WH --> ITSM
-        WH --> MON
-        SN --> TEAM
-    end
+    NETWORK --> AL
+    AL --> DLT
+    DLT --> UC
+    UC --> DT
+    DT --> CORE
 
-    %% Styling
-    classDef sourceStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
-    classDef ingestionStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
-    classDef storageStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
-    classDef aiStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
-    classDef knowledgeStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
-    classDef ragStyle fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#000
-    classDef outputStyle fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px,color:#000
-    classDef externalStyle fill:#fafafa,stroke:#424242,stroke-width:2px,color:#000
+    KB --> EMB
+    EMB --> VS
+    VS --> QP
+    QP --> SR
+    SR --> CR
+    CR --> MCP
+    MCP --> LLM
 
-    class NS,NR,NF,NM sourceStyle
-    class LI,DLT ingestionStyle
-    class UC,DT,CF storageStyle
-    class SC,IM,NO,RCA,MAO aiStyle
-    class VS,EM,KD,FM knowledgeStyle
-    class QP,SR,CR,AG ragStyle
-    class UI,SN,EM_ALERT,WH outputStyle
-    class ITSM,MON,TEAM externalStyle
+    CORE --> RAG_MCP
+    CORE --> OUTPUT
+    OUTPUT --> EXTERNAL
+
+    %% Enhanced Styling with Databricks Orange Theme
+    classDef databricks fill:#FF6600,stroke:#CC5200,stroke-width:4px,color:#FFFFFF,font-size:16px,font-weight:bold
+    classDef knowledge fill:#E8F4FD,stroke:#1E88E5,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+    classDef core fill:#FFF3E0,stroke:#FF8F00,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+    classDef rag fill:#E8F5E8,stroke:#2E7D32,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+    classDef network fill:#E1F5FE,stroke:#0277BD,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+    classDef pipeline fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+    classDef output fill:#E3F2FD,stroke:#1565C0,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+    classDef external fill:#F5F5F5,stroke:#616161,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
+
+    class DB databricks
+    class KB,EMB,VS,LLM knowledge
+    class SC,IM,NO,RCA_AGENT,MAO core
+    class QP,SR,CR,MCP rag
+    class NSW,RTR,FW,TOOLS network
+    class AL,DLT,UC,DT pipeline
+    class UI,SLACK,EMAIL,WH output
+    class ITSM,MON,TEAMS external
 ```
 
 ### 📊 Component Breakdown
@@ -144,7 +155,7 @@ graph LR
 | **📥 Ingestion** | Autoloader + Delta Live Tables | Databricks Streaming | Reliable data pipeline with validation |
 | **🏛️ Storage** | Unity Catalog + Delta Tables | Delta Lake Architecture | ACID transactions, governance, lineage |
 | **🤖 AI Agents** | Multi-Agent Orchestrator | Foundation Models | Intelligent incident response workflow |
-| **🧠 Knowledge** | Vector Search + RAG | BGE + Llama 3.1 8B | Semantic search over 2,493 RCA records |
+| **🧠 Knowledge** | Vector Search + RAG-MCP | BGE + Llama 3.1 8B + MCP | Semantic search with Model Context Protocol over 2,493 RCA records |
 | **📊 Output** | Lakeview + Notifications | Real-time Dashboards | Actionable insights and alerting |
 
 ### 🤖 AI Agents
@@ -274,58 +285,82 @@ CREATE SCHEMA IF NOT EXISTS network_fault_detection.analytics;
 ## 📸 System Screenshots & Live Demos
 
 ### 🤖 AI-Powered RAG Chat Interface
+
+![Network RCA Assistant](PROJECT_FINAL_ORGANIZED/Screenshots/ChatBot_Flask.png)
+
 *Interactive chat interface powered by RAG with 2,493 RCA records for intelligent network troubleshooting*
 
-> 📱 **Live Demo Available**: Experience the AI-powered chat interface that provides instant access to 2,493 RCA records with natural language processing
+> 📱 **Live Demo**: `https://flask-nwk-rca-2478690352086106.aws.databricksapps.com`
 
 **Key Features Shown:**
-- Natural language query processing
-- Real-time RCA record retrieval
-- Context-aware troubleshooting recommendations
-- Multi-turn conversation support
-- Flask-based web interface with responsive design
+- **🔍 Natural Language Queries**: "DNS resolution problems" with intelligent AI analysis
+- **📊 Real-time Metrics**: 3 Active Incidents, 2.4h Avg Response, 94% SLA Compliance
+- **🤖 AI-Powered Responses**: Based on 2,493 historical RCA reports
+- **📋 Quick Templates**: Network Outage, Performance Issue, Security Alert, Hardware Failure
+- **🌐 Network Status**: Live monitoring of Core Routers and Switches
+- **⚡ Performance**: 3 docs/query retrieval with Foundation Models
 
-### 📊 Real-Time Dashboard Analytics
-*Live performance metrics showing agent response times, accuracy rates, and incident resolution statistics*
+### 📊 Production Pipeline & Job Management
 
-> 📈 **Production Dashboards**: Real-time monitoring with Databricks Lakeview showing system performance and business impact
+![Production Pipeline](PROJECT_FINAL_ORGANIZED/Screenshots/Network_Fault_Detection_Production_Pipeline.png)
 
-**Metrics Displayed:**
-- Agent performance benchmarks (99.9% uptime)
-- Response time analytics (< 5 seconds average)
-- Success rate tracking (92%+ accuracy)
-- Resource utilization monitoring
-- Incident resolution trends
+*Automated production pipeline with 24/7 job orchestration and monitoring*
 
-### 🔗 Production Model Serving Infrastructure
-*Enterprise-grade model serving endpoints with auto-scaling and high availability*
+> 🚀 **Production Status**: Network_Fault_Detection_Production_Pipeline running successfully with scheduler
 
-**Infrastructure Components:**
-- Databricks Foundation Model serving
-- Vector search endpoints
-- Auto-scaling compute clusters
-- High-availability deployment
+**Pipeline Features Shown:**
+- **✅ Job Success Rate**: 100% successful runs with 22-24m execution time
+- **⏰ Automated Scheduling**: Regular execution every 6 hours with reliable scheduling
+- **📊 Performance Monitoring**: Duration tracking and execution history
+- **🔄 Multi-Agent Orchestration**: Sequential processing through all 5 agents
+- **📈 Scalability**: Production-ready infrastructure handling enterprise workloads
 
-### 📱 Slack Integration & Real-Time Notifications
-*Real-time incident notifications and AI-powered recommendations delivered directly to Slack channels*
+### 🔍 Vector Search & Knowledge Base
 
-> 🔔 **Enterprise Integration**: Seamless Slack integration with automated incident detection and intelligent routing based on severity levels
+![Vector Search Index](PROJECT_FINAL_ORGANIZED/Screenshots/rca_reports_vector_index_Overview.png)
 
-**Integration Features:**
-- Automatic incident detection alerts (P1-P4 classification)
-- Severity-based notification routing
-- Interactive troubleshooting guidance with AI recommendations
-- Team collaboration workflows
-- Escalation management with SLA tracking
+*Production vector search index with 2,493 RCA records and BGE embeddings*
 
-### 📈 Incident Rate & Trend Analysis
-*Comprehensive incident tracking with severity classification and trend analysis*
+> 🧠 **Knowledge Base**: `rca_reports_vector_index` actively serving intelligent search queries
 
-**Analytics Capabilities:**
-- Historical incident patterns
-- Severity distribution analysis
-- MTTR trend tracking
-- Predictive insights
+**Vector Search Features:**
+- **📚 Index Status**: Online and Active with Delta Sync enabled
+- **🎯 Embedding Model**: BGE-large-en for high-quality semantic search
+- **🔄 Data Pipeline**: Triggered sync with network_fault_detection.processed_data.rca_reports_for_vector_search
+- **🔗 Serving Endpoint**: network_fault_detection_vs_endpoint ready for queries
+- **⚡ Performance**: 3 rows indexed for production search capabilities
+
+### 🚀 Databricks Apps Deployment
+
+![Flask App Deployment](PROJECT_FINAL_ORGANIZED/Screenshots/Flask_App_Deployed.png)
+
+*Production Flask application deployed on Databricks Apps platform*
+
+> 🌐 **Live Application**: flask-nwk-rca successfully deployed and running on Databricks Apps
+
+**Deployment Features:**
+- **✅ Application Status**: Running and accessible at production URL
+- **📦 Automated Deployment**: 7-second deployment pipeline with success validation
+- **🔧 Resource Management**: 2 vCPUs, 6 GB memory, 0.5 DBU/hour compute allocation
+- **🛡️ Security**: Creator permissions and access control managed
+- **📊 Monitoring**: Last deploy tracking and inspect deployed code capabilities
+
+### 📊 Production Data & RCA Intelligence
+
+![RCA Reports Data](PROJECT_FINAL_ORGANIZED/Screenshots/rca_reports_streaming_Data.png)
+
+*Live RCA reports streaming data with intelligent analysis and recommendations*
+
+> 🗄️ **Data Intelligence**: Real-time RCA reports with AI-powered analysis confidence scoring
+
+**Data Features Shown:**
+- **📋 RCA Records**: Live streaming data with unique incident IDs (rca_1758241120817420_474...)
+- **🎯 Priority Classification**: HIGH, MEDIUM, INFO priority levels automatically assigned
+- **🔧 Recommended Operations**: investigate, reroute_traffic, monitor actions
+- **📈 Root Cause Categories**: Network, Software, External issue classification
+- **🤖 AI Analysis**: Intelligent analysis with confidence scores (0.65-0.8 range)
+- **⏰ Real-time Processing**: Live timestamps with rule-based analysis methods
+- **📊 Smart Queries**: "What is the average processing time by incident priority?" with AI assistance
 
 ---
 
