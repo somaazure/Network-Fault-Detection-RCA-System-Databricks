@@ -111,10 +111,6 @@ This folder contains the complete **Severity Classification Agent** implementati
 
 ## 🔄 **Integration Status**
 
-![Production Monitoring](screenshots/Serving%20endpoint%20-%20Copy.png)
-
-*Production monitoring interface showing endpoint performance, scaling, and health metrics*
-
 ### **✅ Ready for Integration**
 - **RCA Generation Pipeline**: Agent output ready for RCA input
 - **Real-time Processing**: Supports streaming log analysis
@@ -159,8 +155,7 @@ This folder contains the complete **Severity Classification Agent** implementati
 
 ### **📊 Production Monitoring & Health**
 
-![Production Monitoring](screenshots/Serving%20endpoint%20-%20Copy.png)
-*Real-time monitoring showing endpoint health, traffic, and resource utilization*
+*Real-time monitoring capabilities are demonstrated through the endpoint configuration dashboard above, showing endpoint health, traffic patterns, and resource utilization metrics.*
 
 ---
 
