@@ -42,24 +42,28 @@ An **enterprise-grade AI-powered network operations platform** that transforms h
 flowchart TD
     A["🌐 Network Logs"]
     B["🧱 Databricks Pipeline"]
-    C["📚 RCA Knowledge<br/>2,493 Records"]
-    D["🤖 AI Agents<br/>RAG + MCP"]
-    E["🦙 Llama 3.1 8B"]
-    F["📊 Chat & Alerts"]
+    C["🏛️ Unity Catalog<br/>Data Governance"]
+    D["📚 RCA Knowledge<br/>2,493 Records"]
+    E["🤖 AI Agents<br/>• Severity Classification<br/>• Incident Manager<br/>• Network Ops<br/>• RCA Analysis<br/>RAG + MCP"]
+    F["🦙 Meta Llama 3.1<br/>8B Instruct"]
+    G["📊 Chat & Alerts"]
 
     A ==> B
     B ==> C
     C ==> D
-    D <==> E
-    D ==> F
-    D -.-> C
+    D ==> E
+    E <==> F
+    E ==> G
+    E -.-> D
 
     classDef default fill:#2a2a2a,stroke:#ffffff,stroke-width:2px,color:#ffffff,font-size:12px
     classDef databricks fill:#ff6600,stroke:#ffffff,stroke-width:3px,color:#ffffff,font-size:12px,font-weight:bold
+    classDef unity fill:#1e88e5,stroke:#ffffff,stroke-width:3px,color:#ffffff,font-size:12px,font-weight:bold
     classDef ai fill:#4a4a4a,stroke:#ffffff,stroke-width:2px,color:#ffffff,font-size:12px
 
     class B databricks
-    class D,E ai
+    class C unity
+    class E,F ai
 ```
 
 ### 📊 Component Breakdown
