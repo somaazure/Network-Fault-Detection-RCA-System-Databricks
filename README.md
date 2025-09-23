@@ -30,121 +30,36 @@ An **enterprise-grade AI-powered network operations platform** that transforms h
 
 ## 🏗️ Databricks Multi Agent System with RAG-MCP
 
-> 📊 **Enhanced Interactive Diagram**: This enlarged Mermaid diagram renders with enhanced visibility, color-coded components, and interactive navigation. The diagram is optimized for better readability with increased node spacing and font sizes.
+> 📊 **Minimized Interactive Diagram**: This streamlined Mermaid diagram shows the core system flow with clear connection arrows and easy navigation. The compact design focuses on essential components and data flow for better comprehension.
 
 <div align="center">
 <h3>🔍 Click to expand diagram for full-screen viewing</h3>
 </div>
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ff6600", "primaryTextColor": "#000000", "primaryBorderColor": "#ff6600", "lineColor": "#333333", "edgeLabelBackground": "#ffffff", "clusterBkg": "#f8f9fa", "clusterBorder": "#cccccc", "mainBkg": "#ffffff", "secondBkg": "#f8f9fa", "tertiaryBkg": "#ffffff"}, "flowchart": {"nodeSpacing": 80, "rankSpacing": 120, "curve": "linear", "useMaxWidth": true, "htmlLabels": true, "diagramPadding": 20}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ff6600"}, "flowchart": {"nodeSpacing": 100, "rankSpacing": 150}}}%%
 
 flowchart TD
-    %% Header Section
-    DB[("🧱 DATABRICKS<br/>AI Vector Search<br/>Model Serving<br/>RCA-Chatbot")]
+    A["🌐 Network Logs"]
+    B["🧱 Databricks<br/>Streaming Pipeline"]
+    C["📚 RCA Knowledge Base<br/>2,493 Records"]
+    D["🤖 AI Agents<br/>RAG + MCP"]
+    E["🦙 Llama 3.1 8B"]
+    F["📊 Chat Interface<br/>& Alerts"]
 
-    %% Knowledge & Intelligence Section
-    subgraph KNOWLEDGE ["🧠 Knowledge & Intelligence"]
-        KB["📚 Knowledge Base<br/>2,493 RCA Records"]
-        EMB["🎯 BGE Embeddings<br/>Vector Processing"]
-        VS["🔍 Vector Search<br/>Engine"]
-        LLM["🦙 LLM Foundation<br/>Llama 3.1 8B"]
-    end
+    A ==> B
+    B ==> C
+    C ==> D
+    D <==> E
+    D ==> F
+    D -.-> C
 
-    %% AI Multi-Agent RAG-MCP Core
-    subgraph CORE ["🤖 AI Multi-Agent RAG-MCP System"]
-        direction TB
-        SC["🎯 Severity Classification<br/>Agent"]
-        IM["👨‍💼 Incident Manager<br/>Agent"]
-        NO["🔧 Network Ops<br/>Agent"]
-        RCA_AGENT["🕵️ Root Cause Analysis<br/>Agent"]
-        MAO["🎭 Multi-Agent<br/>Orchestrator"]
-    end
+    classDef default fill:#e1f5fe,stroke:#01579b,stroke-width:3px,color:#000
+    classDef databricks fill:#ff6600,stroke:#cc5200,stroke-width:4px,color:#fff
+    classDef ai fill:#fff3e0,stroke:#ff8f00,stroke-width:3px,color:#000
 
-    %% RAG Intelligence System
-    subgraph RAG_MCP ["🎯 RAG Intelligence System"]
-        direction LR
-        QP["❓ Query<br/>Processing"]
-        SR["🔍 Semantic<br/>Retrieval"]
-        CR["📋 Context<br/>Ranking"]
-        MCP["🔗 Model Context<br/>Protocol"]
-    end
-
-    %% Network Infrastructure
-    subgraph NETWORK ["🌐 Network Infrastructure"]
-        direction TB
-        NSW["📡 Network<br/>Switches"]
-        RTR["🔀 Routers<br/>& BGP"]
-        FW["🔥 Firewalls<br/>& Security"]
-        TOOLS["📊 Monitoring<br/>Tools"]
-    end
-
-    %% Data Pipeline
-    subgraph PIPELINE ["📥 Automated Streaming Pipeline"]
-        direction TB
-        AL["🔄 Autoloader<br/>Streaming"]
-        DLT["⚡ Delta Live<br/>Tables"]
-        UC["🗄️ Unity Catalog<br/>Data Governance"]
-        DT["📊 Delta Tables<br/>& Change Data Feed"]
-    end
-
-    %% Output Systems
-    subgraph OUTPUT ["📊 Monitoring & Alerts"]
-        direction TB
-        UI["💻 Lakeview<br/>Dashboards"]
-        SLACK["📱 Slack<br/>Notifications"]
-        EMAIL["📧 Email<br/>Alerts"]
-        WH["🔗 Webhook<br/>Integrations"]
-    end
-
-    %% External Systems
-    subgraph EXTERNAL ["🔗 External Systems"]
-        direction TB
-        ITSM["🎫 ITSM<br/>ServiceNow"]
-        MON["📈 Monitoring<br/>Datadog/Splunk"]
-        TEAMS["👥 MS Teams<br/>Collaboration"]
-    end
-
-    %% Main Flow Connections
-    DB --> KNOWLEDGE
-    DB --> CORE
-
-    NETWORK --> AL
-    AL --> DLT
-    DLT --> UC
-    UC --> DT
-    DT --> CORE
-
-    KB --> EMB
-    EMB --> VS
-    VS --> QP
-    QP --> SR
-    SR --> CR
-    CR --> MCP
-    MCP --> LLM
-
-    CORE --> RAG_MCP
-    CORE --> OUTPUT
-    OUTPUT --> EXTERNAL
-
-    %% Enhanced Styling with Databricks Orange Theme
-    classDef databricks fill:#FF6600,stroke:#CC5200,stroke-width:4px,color:#FFFFFF,font-size:16px,font-weight:bold
-    classDef knowledge fill:#E8F4FD,stroke:#1E88E5,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-    classDef core fill:#FFF3E0,stroke:#FF8F00,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-    classDef rag fill:#E8F5E8,stroke:#2E7D32,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-    classDef network fill:#E1F5FE,stroke:#0277BD,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-    classDef pipeline fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-    classDef output fill:#E3F2FD,stroke:#1565C0,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-    classDef external fill:#F5F5F5,stroke:#616161,stroke-width:3px,color:#000000,font-size:12px,font-weight:bold
-
-    class DB databricks
-    class KB,EMB,VS,LLM knowledge
-    class SC,IM,NO,RCA_AGENT,MAO core
-    class QP,SR,CR,MCP rag
-    class NSW,RTR,FW,TOOLS network
-    class AL,DLT,UC,DT pipeline
-    class UI,SLACK,EMAIL,WH output
-    class ITSM,MON,TEAMS external
+    class B databricks
+    class D,E ai
 ```
 
 ### 📊 Component Breakdown
